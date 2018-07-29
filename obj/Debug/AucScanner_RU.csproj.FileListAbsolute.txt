@@ -1,0 +1,13 @@
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner_RU.csprojAssemblyReference.cache
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner.AdditionalInfo.resources
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner.AddObjects.resources
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner.Properties.Resources.resources
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner.sortRows.resources
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner_RU.csproj.GenerateResource.cache
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner_RU.csproj.CoreCompileInputs.cache
+E:\proj\decompile\AucScanner_RU\bin\Debug\AucScanner.exe
+E:\proj\decompile\AucScanner_RU\bin\Debug\AucScanner.pdb
+E:\proj\decompile\AucScanner_RU\bin\Debug\Newtonsoft.Json.dll
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner_RU.csproj.CopyComplete
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner.exe
+E:\proj\decompile\AucScanner_RU\obj\Debug\AucScanner.pdb
