@@ -41,7 +41,7 @@ namespace AucScanner
 
     public scanner()
     {
-      this.explorer = new BlizzardAPIExplorer("u8mz5ymmphznxvqw33eup9qr9s75pv5z");
+      this.explorer = new BlizzardAPIExplorer("42ec6c2554eb4235aaa2c4ccc249b3e7");
       LocalSettings.Load();
       this.petStorage = new PetStorage(this.explorer);
       this.updater = new ServersUpdate(this.explorer);

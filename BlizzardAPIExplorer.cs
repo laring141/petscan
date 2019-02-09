@@ -12,150 +12,209 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using RestSharp;
+
 
 namespace AucScanner
 {
-  public class BlizzardAPIExplorer
-  {
-    private string privateKey = "u8mz5ymmphznxvqw33eup9qr9s75pv5z";
-    private string locale = LocalSettings.serverstype != ServersType.RU ? "en_EU" : "ru_RU";
-    private string world = "eu";
-    private string jSonDir = AppDomain.CurrentDomain.BaseDirectory + "Data";
-    private int requestPerSecond = 20;
-    private object lockThis = new object();
-    private System.Windows.Forms.Timer blizzTimer;
-    private int freeRequest;
-
-    public BlizzardAPIExplorer(string key)
+    public class oauthToken
     {
-     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
-     this.freeRequest = this.requestPerSecond;
-      ServicePointManager.DefaultConnectionLimit = int.MaxValue;
-      this.jSonDir = LocalSettings.serverstype != ServersType.RU ? this.jSonDir + "_EU\\" : this.jSonDir + "_RU\\";
-      if (!Directory.Exists(this.jSonDir))
-        Directory.CreateDirectory(this.jSonDir);
-      this.privateKey = key;
-      this.deleteAllJsons();
-      this.blizzTimer = new System.Windows.Forms.Timer();
-      this.blizzTimer.Interval = 1000;
-      this.blizzTimer.Tick += new EventHandler(this.BlizzTimer_Tick);
-      this.blizzTimer.Start();
+        public string access_token { get; set; }
+
+        public string token_type { get; set; }
+
+        public int expires_in { get; set; }
+
+        public DateTime expiresTime { get; set; }
     }
 
-    private void BlizzTimer_Tick(object sender, EventArgs e)
-    {
-      lock (this.lockThis)
-        this.freeRequest = this.requestPerSecond;
-    }
 
-    private void deleteAllJsons()
+    public class BlizzardAPIExplorer
     {
-      string[] files = Directory.GetFiles(this.jSonDir, "*.json");
-      DateTime now = DateTime.Now;
-      foreach (string str in files)
-      {
-        DateTime lastWriteTime = System.IO.File.GetLastWriteTime(str);
-        if ((now - lastWriteTime).TotalHours > 2.0)
-          System.IO.File.Delete(str);
-        else if (new FileInfo(str).Length < 100L)
-          System.IO.File.Delete(str);
-      }
-    }
+        private string privateKey = "u8mz5ymmphznxvqw33eup9qr9s75pv5z";
+        private string locale = LocalSettings.serverstype != ServersType.RU ? "en_EU" : "ru_RU";
+        private string world = "eu";
+        private string jSonDir = AppDomain.CurrentDomain.BaseDirectory + "Data";
+        private int requestPerSecond = 20;
+        private object lockThis = new object();
+        private System.Windows.Forms.Timer blizzTimer;
+        private int freeRequest;
+        private oauthToken token;
 
-    public Auctions GetAuctions(string serverName)
-    {
-      this.getAPIToken();
-      WebResponse response = WebRequest.Create(this.getURL("auction/data/" + serverName)).GetResponse();
-      Files files;
-      using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
-      {
-        using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader) streamReader))
-          files = new JsonSerializer().Deserialize<Files>((JsonReader) jsonTextReader);
-      }
-      response.Close();
-      Console.WriteLine(serverName + " " + files.files[0].url);
-      string url = files.files[0].url;
-      string str1 = files.files[0].lastModified.ToString();
-      Uri uri = new Uri(url);
-      string str2 = this.jSonDir + uri.Segments[uri.Segments.Length - 2].TrimEnd('/') + "_" + str1 + ".json";
-      if (!System.IO.File.Exists(str2) || new FileInfo(str2).Length < 100L)
-      {
-        MyWebClient myWebClient = new MyWebClient();
-        myWebClient.Proxy = (IWebProxy) null;
-        myWebClient.Encoding = Encoding.Unicode;
-        myWebClient.DownloadFile(url, str2);
-      }
-      Console.WriteLine(serverName + " downloaded " + files.files[0].url);
-      bool flag = false;
-      using (StreamReader streamReader = new StreamReader(str2))
-      {
-        using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader) streamReader))
+
+
+
+        private RestClient authClient = new RestClient("https://eu.battle.net");
+
+        public BlizzardAPIExplorer(string key)
         {
-          JsonSerializer jsonSerializer = new JsonSerializer();
-          try
-          {
-            return jsonSerializer.Deserialize<Auctions>((JsonReader) jsonTextReader);
-          }
-          catch (Exception ex)
-          {
-            flag = true;
-          }
+
+            authClient.Authenticator = new RestSharp.Authenticators.HttpBasicAuthenticator("42ec6c2554eb4235aaa2c4ccc249b3e7", "IlJ1A4sMYG3F9fBbJUr0GmhVIZJCOUbq");
+
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | (SecurityProtocolType)768 | (SecurityProtocolType)3072;
+            this.freeRequest = this.requestPerSecond;
+            ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+            this.jSonDir = LocalSettings.serverstype != ServersType.RU ? this.jSonDir + "_EU\\" : this.jSonDir + "_RU\\";
+            if (!Directory.Exists(this.jSonDir))
+                Directory.CreateDirectory(this.jSonDir);
+
+            this.privateKey = key;
+            this.deleteAllJsons();
+            this.blizzTimer = new System.Windows.Forms.Timer();
+            this.blizzTimer.Interval = 1000;
+            this.blizzTimer.Tick += new EventHandler(this.BlizzTimer_Tick);
+            this.blizzTimer.Start();
+
+            this.authenticate();
         }
-      }
-      if (!flag)
-        return (Auctions) null;
-      System.IO.File.Delete(str2);
-      return (Auctions) null;
-    }
 
-    private void WebClient_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
-    {
-      lock (e.UserState)
-        Monitor.Pulse(e.UserState);
-    }
+        private void BlizzTimer_Tick(object sender, EventArgs e)
+        {
+            lock (this.lockThis)
+                this.freeRequest = this.requestPerSecond;
+        }
 
-    private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-    {
-    }
+        private void deleteAllJsons()
+        {
+            string[] files = Directory.GetFiles(this.jSonDir, "*.json");
+            DateTime now = DateTime.Now;
+            foreach (string str in files)
+            {
+                DateTime lastWriteTime = System.IO.File.GetLastWriteTime(str);
+                if ((now - lastWriteTime).TotalHours > 2.0)
+                    System.IO.File.Delete(str);
+                else if (new FileInfo(str).Length < 100L)
+                    System.IO.File.Delete(str);
+            }
+        }
 
-    public List<Pet> GetPets()
-    {
-      this.getAPIToken();
-          
+        public Auctions GetAuctions(string serverName)
+        {
+            this.getAPIToken();
+            var request = WebRequest.Create(this.getURL("auction/data/" + serverName));
+
+            request.Headers.Add(HttpRequestHeader.Authorization, string.Format("Bearer {0}", this.token.access_token));
+            WebResponse response = request.GetResponse();
+            Files files;
+            using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
+            {
+                using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
+                    files = new JsonSerializer().Deserialize<Files>((JsonReader)jsonTextReader);
+            }
+            response.Close();
+            Console.WriteLine(serverName + " " + files.files[0].url);
+            string url = files.files[0].url;
+            string str1 = files.files[0].lastModified.ToString();
+            Uri uri = new Uri(url);
+            string str2 = this.jSonDir + uri.Segments[uri.Segments.Length - 2].TrimEnd('/') + "_" + str1 + ".json";
+            if (!System.IO.File.Exists(str2) || new FileInfo(str2).Length < 100L)
+            {
+                MyWebClient myWebClient = new MyWebClient();
+                myWebClient.Proxy = (IWebProxy)null;
+                myWebClient.Encoding = Encoding.Unicode;
+                myWebClient.DownloadFile(url, str2);
+            }
+            Console.WriteLine(serverName + " downloaded " + files.files[0].url);
+            bool flag = false;
+            using (StreamReader streamReader = new StreamReader(str2))
+            {
+                using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
+                {
+                    JsonSerializer jsonSerializer = new JsonSerializer();
+                    try
+                    {
+                        return jsonSerializer.Deserialize<Auctions>((JsonReader)jsonTextReader);
+                    }
+                    catch (Exception ex)
+                    {
+                        flag = true;
+                    }
+                }
+            }
+            if (!flag)
+                return (Auctions)null;
+            System.IO.File.Delete(str2);
+            return (Auctions)null;
+        }
+
+        private void WebClient_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
+        {
+            lock (e.UserState)
+                Monitor.Pulse(e.UserState);
+        }
+
+        private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+        }
+
+        public List<AucScanner.Models.Pet> GetPets()
+        {
+            this.getAPIToken();
+
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.getURL("pet/"));
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-         HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-      using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
-      {
-        using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader) streamReader))
-        {
-          Pets pets = new JsonSerializer().Deserialize<Pets>((JsonReader) jsonTextReader);
-          response.Close();
-          return pets.pets;
+            request.Headers.Add(HttpRequestHeader.Authorization, string.Format("Bearer {0}", this.token.access_token));
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
+            {
+                using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
+                {
+                    Pets pets = new JsonSerializer().Deserialize<Pets>((JsonReader)jsonTextReader);
+                    response.Close();
+                    return pets.pets;
+                }
+            }
+
+
+
         }
-      }
-    }
 
-    private string getURL(string command)
-    {
-      return string.Format("https://{0}.api.battle.net/wow/{1}?locale={2}&apikey={3}", (object) this.world, (object) command, (object) this.locale, (object) this.privateKey);
-    }
+        private string getURL(string command)
+        {
+            return string.Format("https://eu.api.blizzard.com/wow/{0}?locale={1}", (object)command, (object)this.locale, (object)this.privateKey);
+        }
 
-    private void getAPIToken()
-    {
-      for (bool flag = this.isGotAPIToken(); !flag; flag = this.isGotAPIToken())
-        Thread.Sleep(1000);
-    }
+        private void checkAuthentication()
+        {
+            if (this.token.expiresTime < DateTime.Now)
+            {
+                authenticate();
+            }
+        }
 
-    private bool isGotAPIToken()
-    {
-      lock (this.lockThis)
-      {
-        if (this.freeRequest <= 0)
-          return false;
-        --this.freeRequest;
-        return true;
-      }
+
+        private void authenticate()
+        {
+            var request = new RestRequest("/oauth/token", Method.POST);
+            // request.AddJsonBody("{\"grant_type\":\"client_credentials\"}");
+            request.AddQueryParameter("grant_type", "client_credentials");
+
+            var response = authClient.Post<oauthToken>(request);
+            if (response.IsSuccessful)
+            {
+                this.token = response.Data;
+                this.token.expiresTime = DateTime.Now.AddSeconds(this.token.expires_in);
+            }
+
+
+        }
+
+        private void getAPIToken()
+        {
+            for (bool flag = this.isGotAPIToken(); !flag; flag = this.isGotAPIToken())
+                Thread.Sleep(1000);
+        }
+
+        private bool isGotAPIToken()
+        {
+            lock (this.lockThis)
+            {
+                if (this.freeRequest <= 0)
+                    return false;
+                --this.freeRequest;
+                return true;
+            }
+        }
     }
-  }
 }
