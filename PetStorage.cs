@@ -153,9 +153,9 @@ namespace AucScanner
       {
         foreach (Pet pet in this.petList)
         {
-          int speciesId = pet.Stats.SpeciesId;
+          int speciesId = pet.BattlePetId;
           if (LocalSettings.settings.StoredPets.ContainsKey((long) speciesId))
-            this.savedPetList.Add(pet.Stats.SpeciesId, pet);
+            this.savedPetList.Add(pet.BattlePetId, pet);
         }
       }
     }
@@ -169,9 +169,9 @@ namespace AucScanner
       }
       foreach (Pet pet in this.petList)
       {
-        if (pet.Stats.SpeciesId == petId)
+        if (pet.BattlePetId == petId)
         {
-          this.savedPetList.Add(pet.Stats.SpeciesId, pet);
+          this.savedPetList.Add(pet.BattlePetId, pet);
           break;
         }
       }
@@ -194,7 +194,7 @@ namespace AucScanner
       foreach (Pet pet in this.petList)
       {
         if (string.Compare(petName, pet.Name, true) == 0)
-          return pet.Stats.SpeciesId;
+          return pet.BattlePetId;
       }
       return -2;
     }

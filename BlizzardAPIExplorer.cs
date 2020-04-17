@@ -10,10 +10,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
 using RestSharp;
-
+/*using System.Text.Json;
+using System.Text.Json.Serialization;
+using RestClient;*/
 
 namespace AucScanner
 {
@@ -32,7 +33,7 @@ namespace AucScanner
     public class BlizzardAPIExplorer
     {
         private string privateKey = "u8mz5ymmphznxvqw33eup9qr9s75pv5z";
-        private string locale = LocalSettings.serverstype != ServersType.RU ? "en_EU" : "ru_RU";
+        private string locale = LocalSettings.serverstype != ServersType.RU ? "en_US" : "ru_RU";
         private string world = "eu";
         private string jSonDir = AppDomain.CurrentDomain.BaseDirectory + "Data";
         private int requestPerSecond = 20;
@@ -92,49 +93,30 @@ namespace AucScanner
         public Auctions GetAuctions(string serverName)
         {
             this.getAPIToken();
-            var request = WebRequest.Create(this.getURL("auction/data/" + serverName));
+            var url = "connected-realm/" + serverName + "/auctions";
 
+           /* var baseUri = new Uri(this.getURL(url, false));
+            var client = new Client(baseUri);
+            access_token*/
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.getURL(url, false));
+        
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Headers.Add(HttpRequestHeader.Authorization, string.Format("Bearer {0}", this.token.access_token));
-            WebResponse response = request.GetResponse();
-            Files files;
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+           /* var Options = new JsonSerializerOptions();
+            var contentStream = await response.Content.ReadAsStreamAsync();
+            var result = await System.Text.Json.JsonSerializer.DeserializeAsync<Auctions>(contentStream, Options);*
+            return result;*/
             using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
             {
                 using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
-                    files = new JsonSerializer().Deserialize<Files>((JsonReader)jsonTextReader);
-            }
-            response.Close();
-            Console.WriteLine(serverName + " " + files.files[0].url);
-            string url = files.files[0].url;
-            string str1 = files.files[0].lastModified.ToString();
-            Uri uri = new Uri(url);
-            string str2 = this.jSonDir + uri.Segments[uri.Segments.Length - 2].TrimEnd('/') + "_" + str1 + ".json";
-            if (!System.IO.File.Exists(str2) || new FileInfo(str2).Length < 100L)
-            {
-                MyWebClient myWebClient = new MyWebClient();
-                myWebClient.Proxy = (IWebProxy)null;
-                myWebClient.Encoding = Encoding.Unicode;
-                myWebClient.DownloadFile(url, str2);
-            }
-            Console.WriteLine(serverName + " downloaded " + files.files[0].url);
-            bool flag = false;
-            using (StreamReader streamReader = new StreamReader(str2))
-            {
-                using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
                 {
-                    JsonSerializer jsonSerializer = new JsonSerializer();
-                    try
-                    {
-                        return jsonSerializer.Deserialize<Auctions>((JsonReader)jsonTextReader);
-                    }
-                    catch (Exception ex)
-                    {
-                        flag = true;
-                    }
+                    Auctions auctions = new JsonSerializer().Deserialize<Auctions>((JsonReader)jsonTextReader);
+                    response.Close();
+                    return auctions;
                 }
             }
-            if (!flag)
-                return (Auctions)null;
-            System.IO.File.Delete(str2);
+           
             return (Auctions)null;
         }
 
@@ -152,7 +134,7 @@ namespace AucScanner
         {
             this.getAPIToken();
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.getURL("pet/"));
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.getURL("pet/index", true));
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Headers.Add(HttpRequestHeader.Authorization, string.Format("Bearer {0}", this.token.access_token));
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
@@ -165,14 +147,32 @@ namespace AucScanner
                     return pets.pets;
                 }
             }
-
-
-
         }
 
-        private string getURL(string command)
+        public PetImage GetPetImage(int petId)
         {
-            return string.Format("https://eu.api.blizzard.com/wow/{0}?locale={1}", (object)command, (object)this.locale, (object)this.privateKey);
+            this.getAPIToken();
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.getURL("pet/"+petId, true));
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            request.Headers.Add(HttpRequestHeader.Authorization, string.Format("Bearer {0}", this.token.access_token));
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
+            {
+                using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
+                {
+                    PetImage pet = new JsonSerializer().Deserialize<PetImage>((JsonReader)jsonTextReader);
+                    response.Close();
+                    return pet;
+                }
+            }
+        }
+
+
+        private string getURL(string command, bool isStatic)
+        {
+            string blizzNamespace = isStatic ? "static-eu" : "dynamic-eu";
+            return string.Format("https://eu.api.blizzard.com/data/wow/{0}?locale={1}&namespace={2}", (object)command, this.locale, (object)blizzNamespace);
         }
 
         private void checkAuthentication()

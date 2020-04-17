@@ -19,7 +19,7 @@ namespace AucScanner
   public class scanner : Form
   {
     private Dictionary<int, DataGridViewRow> rowsHelper = new Dictionary<int, DataGridViewRow>();
-    private PetImage petImageHelper = new PetImage();
+    private PetImageProvider petImageHelper;
     private object lockThis = new object();
     private sortRows sorter = new sortRows();
     private BlizzardAPIExplorer explorer;
@@ -45,6 +45,7 @@ namespace AucScanner
       LocalSettings.Load();
       this.petStorage = new PetStorage(this.explorer);
       this.updater = new ServersUpdate(this.explorer);
+      this.petImageHelper = new PetImageProvider(this.explorer);
       this.InitializeComponent();
       this.updateTimer = new Timer();
       this.updateTimer.Interval = LocalSettings.settings.TimeToUpdateMin * 60 * 1000;
@@ -81,7 +82,7 @@ namespace AucScanner
       {
         foreach (Auction auction in server.auctions.auctions)
         {
-          if (auction.item == 82800L && auction.Buyout > 0L)
+          if (auction.isPet && auction.Buyout > 0L)
           {
             int petSpeciesId = auction.petSpeciesId;
             long num = auction.Buyout / 10000L;
@@ -217,7 +218,7 @@ namespace AucScanner
       this.dataGridView1.Columns["minprice"].DefaultCellStyle.Font = new Font("Arial", 9f, GraphicsUnit.Pixel);
       foreach (Server server in this.updater.servers)
       {
-        this.dataGridView1.Columns.Add(server.apiName, server.russianName);
+        this.dataGridView1.Columns.Add(server.apiName, server.serverName);
         this.dataGridView1.Columns[server.apiName].ValueType = typeof (long);
         this.dataGridView1.Columns[server.apiName].Width = 40;
         this.dataGridView1.Columns[server.apiName].ReadOnly = true;
@@ -238,11 +239,11 @@ namespace AucScanner
         this.dataGridView1.Rows[index].Tag = (object) 0;
         this.dataGridView1.Rows[index].Height = 20;
         this.dataGridView1.Rows[index].Cells["PetName"].Value = (object) pet.Name;
-        this.dataGridView1.Rows[index].Cells["PetName"].Tag = (object) pet.Stats.SpeciesId;
-        this.petImageHelper.fillDataCellWithImage((DataGridViewImageCell) this.dataGridView1.Rows[index].Cells["petImage"], pet.Icon);
-        if (LocalSettings.settings.StoredPets[(long) pet.Stats.SpeciesId] > 0L)
-          this.dataGridView1.Rows[index].Cells["wantedPrice"].Value = (object) LocalSettings.settings.StoredPets[(long) pet.Stats.SpeciesId];
-        this.rowsHelper.Add(pet.Stats.SpeciesId, this.dataGridView1.Rows[index]);
+        this.dataGridView1.Rows[index].Cells["PetName"].Tag = (object) pet.BattlePetId;
+        this.petImageHelper.fillDataCellWithImage((DataGridViewImageCell) this.dataGridView1.Rows[index].Cells["petImage"], pet.BattlePetId);
+        if (LocalSettings.settings.StoredPets[pet.BattlePetId] > 0L)
+          this.dataGridView1.Rows[index].Cells["wantedPrice"].Value = (object) LocalSettings.settings.StoredPets[pet.BattlePetId];
+        this.rowsHelper.Add(pet.BattlePetId, this.dataGridView1.Rows[index]);
         ++index;
       }
     }

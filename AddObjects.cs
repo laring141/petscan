@@ -64,7 +64,7 @@ namespace AucScanner
     {
       this.dataGridView1.Rows.Clear();
       foreach (Pet pet in this.storage.savedPetList.Values)
-        this.dataGridView1.Rows.Add((object) pet.Name, (object) pet.Stats.SpeciesId.ToString(), (object) "X");
+        this.dataGridView1.Rows.Add((object) pet.Name, (object) pet.BattlePetId.ToString(), (object) "X");
     }
 
     private void addPet()

@@ -10,14 +10,22 @@ namespace AucScanner
 {
   public class Server
   {
-    public string apiName;
-    public string russianName;
+    public int realmId;
+    public string serverName;
     public Auctions auctions;
 
-    public Server(string api, string rus)
+    public string apiName
     {
-      this.apiName = api;
-      this.russianName = rus;
+        get
+        {
+             return this.realmId.ToString();
+        }
+    }           
+
+    public Server(int realmId, string rus)
+    {
+      this.realmId = realmId;
+      this.serverName = rus;
     }
   }
 }

@@ -33,56 +33,62 @@ namespace AucScanner
       List<Server> source = new List<Server>();
       if (LocalSettings.serverstype == ServersType.RU)
       {
-        source.Add(new Server("booty-bay", "Пиратская бухта"));
-        source.Add(new Server("eversong", "Вечная песня"));
-        source.Add(new Server("gordunni", "Гордунни"));
-        source.Add(new Server("azuregos", "Азурегос"));
-        source.Add(new Server("lich-king", "Король лич"));
-        source.Add(new Server("soulflayer", "Свежеватель"));
-        source.Add(new Server("ashenvale", "Ясеневый лес"));
-        source.Add(new Server("grom", "Гром"));
-        source.Add(new Server("deathguard", "Страж смерти"));
-        source.Add(new Server("blackscar", "Черный шрам"));
-        source.Add(new Server("borean-tundra", "Борейская тундра"));
-        source.Add(new Server("galakrond", "Галакронд"));
-        source.Add(new Server("fordragon", "Дракономор"));
-        source.Add(new Server("deephome", "Подземье"));
-        source.Add(new Server("howling-fjord", "Ревущий Фьорд"));
-        source.Add(new Server("goldrinn", "Голдринн"));
+        source.Add(new Server(1924, "Пиратская бухта"));
+        source.Add(new Server(1925, "Вечная песня"));
+        source.Add(new Server(1602, "Гордунни"));
+        source.Add(new Server(1922, "Азурегос"));
+        source.Add(new Server(1603, "Король лич"));
+        source.Add(new Server(1604, "Свежеватель"));
+        source.Add(new Server(1923, "Ясеневый лес"));
+        source.Add(new Server(1927, "Гром"));
+        source.Add(new Server(1605, "Страж смерти"));
+        source.Add(new Server(1929, "Черный шрам"));
+        source.Add(new Server(1625, "Борейская тундра"));
+        source.Add(new Server(1614, "Галакронд"));
+        source.Add(new Server(1623, "Дракономор"));
+        source.Add(new Server(1609, "Подземье"));
+        source.Add(new Server(1615, "Ревущий Фьорд"));
+        source.Add(new Server(1928, "Голдринн"));
        }
       else
       {
-        source.Add(new Server("agamaggan", "Agamaggan"));
-        source.Add(new Server("auchindoun", "Auchindoun"));
-        source.Add(new Server("bladefist", "Bladefist"));
-        source.Add(new Server("bronzebeard", "Bronzebeard"));
-        source.Add(new Server("emerald-dream", "Emerald dream"));
-        source.Add(new Server("eonar", "Eonar"));
-        source.Add(new Server("executus", "Executus"));
-        source.Add(new Server("trollbane", "Trollbane"));
-        source.Add(new Server("burning-legion", "Burning legion"));
-        source.Add(new Server("ragnaros", "Ragnaros"));
-        source.Add(new Server("ravencrest", "Ravencrest"));
-        source.Add(new Server("stormscale", "Stormscale"));
-        source.Add(new Server("sylvanas", "Sylvanas"));
-        source.Add(new Server("twisting-nether", "Twisting nether"));
-        source.Add(new Server("outland", "Outland"));
-        source.Add(new Server("silvermoon", "Silvermoon"));
-        source.Add(new Server("anetheron", "Anetheron"));
-        source.Add(new Server("das-syndikat", "Das-syndikat"));
-        source.Add(new Server("eredar", "Eredar"));
-        source.Add(new Server("frostwolf", "Frostwolf"));
-        source.Add(new Server("madmortem", "Madmortem"));
-        source.Add(new Server("onyxia", "Onyxia"));
-        source.Add(new Server("teldrassil", "Teldrassil"));
-        source.Add(new Server("aegwynn", "Aegwynn"));
-        source.Add(new Server("blackhand", "Blackhand"));
-        source.Add(new Server("garrosh", "Garrosh"));
-        source.Add(new Server("blackmoore", "Blackmoore"));
-                source.Add(new Server("dalaran", "Dalaran"));
-                source.Add(new Server("kazzak", "Kazzak"));
-                source.Add(new Server("argent-dawn", "Argent Dawn"));
-                source.Add(new Server("forscherliga", "Forscherliga"));
+        source.Add(new Server(3657, "Bladefist"));
+                source.Add(new Server(1080, "Bloodhoof"));
+                source.Add(new Server(1081, "Bronzebeard"));
+                source.Add(new Server(3713, "Burning legion"));
+                source.Add(new Server(1403, "Draenor"));
+                source.Add(new Server(2074, "Emerald dream"));
+        source.Add(new Server(1416, "Eonar"));
+       
+        source.Add(new Server(3682, "Ragnaros"));
+        source.Add(new Server(1329, "Ravencrest"));
+                source.Add(new Server(3391, "Silvermoon"));
+                source.Add(new Server(2073, "Stormscale"));
+        source.Add(new Server(3687, "Sylvanas"));
+                source.Add(new Server(1084, "Tarren Mill"));
+                source.Add(new Server(3674, "Twisting nether"));
+        source.Add(new Server(1301, "Outland"));
+        
+
+        // DE
+        source.Add(new Server(1104, "Anetheron"));
+                source.Add(new Server(3686, "Antonidas"));
+                source.Add(new Server(581, "Blackrock"));
+                source.Add(new Server(1121, "Das-syndikat"));
+        source.Add(new Server(3692, "Eredar"));
+        source.Add(new Server(3703, "Frostwolf"));
+        source.Add(new Server(531, "Onyxia"));
+        source.Add(new Server(1407, "Teldrassil"));
+        source.Add(new Server(3679, "Aegwynn"));
+        source.Add(new Server(3691, "Blackhand"));
+        source.Add(new Server(580, "Blackmoore"));
+                source.Add(new Server(1621, "Dalaran"));
+                source.Add(new Server(1305, "Kazzak"));
+                source.Add(new Server(3702, "Argent Dawn"));
+                source.Add(new Server(516, "Forscherliga"));
+                // FR
+                source.Add(new Server(1086, "Conceil 'des Ombres"));
+                source.Add(new Server(1390, "Hyjal"));
             }
       this.servers = source.ToArray<Server>();
     }
@@ -117,9 +123,9 @@ namespace AucScanner
       {
         Console.WriteLine("Starting " + server.apiName);
         this.startedDelegate(server);
-        try
-        {
+       
           Auctions auctions = this.explorer.GetAuctions(server.apiName);
+                auctions.filterData();
           if (auctions != null)
           {
             server.auctions = auctions;
@@ -131,12 +137,8 @@ namespace AucScanner
             Console.WriteLine("parsing failed " + server.apiName);
             flag = false;
           }
-        }
-        catch (Exception ex)
-        {
-          Console.WriteLine("failed " + server.apiName);
-          flag = false;
-        }
+       
+
       }
       Console.WriteLine("completed " + server.apiName);
     }

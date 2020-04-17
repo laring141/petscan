@@ -35,26 +35,25 @@ namespace AucScanner
     private void fillNames()
     {
       this.labelPetName.Text = this.pet.Name;
-      this.labelServerName.Text = this.server.russianName;
+      this.labelServerName.Text = this.server.serverName;
     }
 
     private void fillPrices()
     {
       foreach (Auction auction in this.server.auctions.auctions)
       {
-        if (auction.item == 82800L && auction.Buyout > 0L && auction.petSpeciesId == this.pet.Stats.SpeciesId)
+        if (auction.isPet && auction.Buyout > 0L && auction.petSpeciesId == this.pet.BattlePetId)
         {
           int petSpeciesId = auction.petSpeciesId;
           long num = auction.Buyout / 10000L;
-          string owner = auction.Owner;
-          string str = this.breedString(auction.petBreedId);
+          string str = breedString(auction.petBreedId);
           int petLevel = auction.petLevel;
           DataGridViewRow dataGridViewRow = (DataGridViewRow) this.dataGridView1.RowTemplate.Clone();
-          dataGridViewRow.CreateCells(this.dataGridView1, (object) petLevel, (object) str, (object) num, (object) owner);
+          dataGridViewRow.CreateCells(this.dataGridView1, (object) petLevel, (object) str, (object) num);
           if (auction.petQualityId == 2)
-            dataGridViewRow.Cells[0].Style.ForeColor = Color.Green;
+            dataGridViewRow.Cells[1].Style.ForeColor = Color.Green;
           if (auction.petQualityId == 3)
-            dataGridViewRow.Cells[0].Style.ForeColor = Color.Blue;
+            dataGridViewRow.Cells[1].Style.ForeColor = Color.Blue;
           this.dataGridView1.Rows.Add(dataGridViewRow);
         }
       }
@@ -120,7 +119,6 @@ namespace AucScanner
       this.level = new DataGridViewTextBoxColumn();
       this.breed = new DataGridViewTextBoxColumn();
       this.Price = new DataGridViewTextBoxColumn();
-      this.Seller = new DataGridViewTextBoxColumn();
       ((ISupportInitialize) this.dataGridView1).BeginInit();
       this.SuspendLayout();
       this.labelPetName.AutoSize = true;
@@ -136,7 +134,7 @@ namespace AucScanner
       this.dataGridView1.AllowUserToAddRows = false;
       this.dataGridView1.AllowUserToDeleteRows = false;
       this.dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      this.dataGridView1.Columns.AddRange((DataGridViewColumn) this.level, (DataGridViewColumn) this.breed, (DataGridViewColumn) this.Price, (DataGridViewColumn) this.Seller);
+      this.dataGridView1.Columns.AddRange((DataGridViewColumn) this.level, (DataGridViewColumn) this.breed, (DataGridViewColumn) this.Price);
       this.dataGridView1.Location = new Point(64, 100);
       this.dataGridView1.Name = "dataGridView1";
       this.dataGridView1.ReadOnly = true;
@@ -152,10 +150,6 @@ namespace AucScanner
       this.Price.HeaderText = "Цена";
       this.Price.Name = "Price";
       this.Price.ReadOnly = true;
-      this.Seller.HeaderText = "Продавец";
-      this.Seller.Name = "Seller";
-      this.Seller.ReadOnly = true;
-      this.Seller.Width = 300;
       this.AutoScaleDimensions = new SizeF(11f, 24f);
       this.AutoScaleMode = AutoScaleMode.Font;
       this.ClientSize = new Size(1601, 847);

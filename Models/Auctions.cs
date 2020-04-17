@@ -5,6 +5,7 @@
 // Assembly location: C:\ESD\scanner\AucScanner_RU.exe
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AucScanner.Models
 {
@@ -12,6 +13,11 @@ namespace AucScanner.Models
   {
     public List<Realm> realms { get; set; }
 
-    public List<Auction> auctions { get; set; }
+    public Auction[] auctions { get; set; }
+
+    public void filterData()
+        {
+            this.auctions = this.auctions.Where(c => c.isPet).ToArray();
+        }
   }
 }
