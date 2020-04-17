@@ -125,7 +125,7 @@ namespace AucScanner
         this.startedDelegate(server);
        
           Auctions auctions = this.explorer.GetAuctions(server.apiName);
-                auctions.filterData();
+          auctions.filterData();
           if (auctions != null)
           {
             server.auctions = auctions;

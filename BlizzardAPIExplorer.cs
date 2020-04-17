@@ -93,31 +93,29 @@ namespace AucScanner
         public Auctions GetAuctions(string serverName)
         {
             this.getAPIToken();
+      
+            //  return (Auctions)null;
             var url = "connected-realm/" + serverName + "/auctions";
-
-           /* var baseUri = new Uri(this.getURL(url, false));
-            var client = new Client(baseUri);
-            access_token*/
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.getURL(url, false));
-        
+            /* var baseUri = new Uri(this.getURL(url, false));
+             var client = new Client(baseUri);
+             access_token*/
+             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this.getURL(url, false));
+            //request
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Headers.Add(HttpRequestHeader.Authorization, string.Format("Bearer {0}", this.token.access_token));
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-           /* var Options = new JsonSerializerOptions();
-            var contentStream = await response.Content.ReadAsStreamAsync();
-            var result = await System.Text.Json.JsonSerializer.DeserializeAsync<Auctions>(contentStream, Options);*
-            return result;*/
+            
             using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
-            {
-                using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
-                {
-                    Auctions auctions = new JsonSerializer().Deserialize<Auctions>((JsonReader)jsonTextReader);
-                    response.Close();
-                    return auctions;
-                }
-            }
-           
-            return (Auctions)null;
+             {
+                 using (JsonTextReader jsonTextReader = new JsonTextReader((TextReader)streamReader))
+                 {
+                     Auctions auctions = new JsonSerializer().Deserialize<Auctions>((JsonReader)jsonTextReader);
+                     response.Close();
+                     return auctions;
+                 }
+             }
+
+             return (Auctions)null;
         }
 
         private void WebClient_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)

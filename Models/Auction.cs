@@ -5,11 +5,15 @@
 // Assembly location: C:\ESD\scanner\AucScanner_RU.exe
 using System;  
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AucScanner.Models
 {
   public class Auction
   {
+        public Auction()
+            {
+}
     public int Id { get; set; }
 
     public Dictionary<string, object> Item { get; set; }
@@ -64,5 +68,14 @@ namespace AucScanner.Models
             return itemId == 82800;
         }
     }
+
+    public void filterItems()
+        {
+            List<string> keysToInclude = new List<string> { "pet_species_id", "id", "pet_level", "pet_breed_id", "pet_quality_id" };
+            var newDict = Item
+                 .Where(kvp => keysToInclude.Contains(kvp.Key))
+                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            Item = newDict;
+        }
   }
 }

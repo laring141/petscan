@@ -11,13 +11,20 @@ namespace AucScanner.Models
 {
   public class Auctions
   {
-    public List<Realm> realms { get; set; }
+   
+    public Auctions()
+    {
 
-    public Auction[] auctions { get; set; }
+    }
+    public List<Auction> auctions { get; set; }
 
     public void filterData()
         {
-            this.auctions = this.auctions.Where(c => c.isPet).ToArray();
+            this.auctions = this.auctions.Where(c => c.isPet).ToList<Auction>();
+            foreach (Auction auction in this.auctions)
+            {
+                auction.filterItems();
+            }
         }
   }
 }
